@@ -1,4 +1,4 @@
-// eitan.derdiger@gmail.com
+// eitan.derdiger@gmail.comsdsdsdcsdcc
 #ifndef COUP_PLAYER_HPP
 #define COUP_PLAYER_HPP
 
