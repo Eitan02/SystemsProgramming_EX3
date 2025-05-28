@@ -4,9 +4,11 @@
 
 using namespace coup;
 
+// Represents the Spy role with special vision and blocking abilities
 Spy::Spy(Game& game, const std::string& name)
     : Player(game, name) {}
 
+// Allows Spy to view another player's coin count
 int Spy::seeCoins(Player& target) {
     checkTurn();
     if (mustCoup_) {
@@ -19,6 +21,7 @@ int Spy::seeCoins(Player& target) {
     return targetCoins;
 }
 
+// Blocks arrest attempts on the target for the next turn
 void Spy::blockArrest(Player& target) {
     checkTurn();
     if (mustCoup_) {

@@ -4,9 +4,11 @@
 
 using namespace coup;
 
+// Represents the General role with coup-blocking ability
 General::General(Game& game, const std::string& name)
     : Player(game, name) {}
 
+// Cancels a pending coup against a specific player
 void General::preventCoup(Player& target) {
     checkTurn();
     if (mustCoup_) {

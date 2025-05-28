@@ -3,13 +3,15 @@
 
 using namespace coup;
 
+// Represents the Merchant role with passive income bonus
 Merchant::Merchant(Game& game, const std::string& name)
     : Player(game, name) {}
 
+// Starts turn and grants extra coin if player has 3 or more
 void Merchant::startTurn() {
-    Player::startTurn(); // Call base class startTurn for common logic
-    if (coins_ >= 3) { // Merchant passive: starts turn with 3+ coins, gains 1 extra
+    Player::startTurn();
+    if (coins_ >= 3) {
         coins_ += 1;
     }
-    mustCoup_ = (coins_ >= 10); // Re-evaluate mustCoup_ after potential passive gain
+    mustCoup_ = (coins_ >= 10);
 }

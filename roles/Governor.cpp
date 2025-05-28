@@ -5,9 +5,11 @@
 
 using namespace coup;
 
+// Represents the Governor role with extended tax and block abilities
 Governor::Governor(Game& game, const std::string& name)
     : Player(game, name) {}
 
+// Performs a tax action that gives 3 coins instead of 2
 void Governor::tax() {
     checkTurn();
     if (mustCoup_) {
@@ -26,6 +28,7 @@ void Governor::tax() {
     changeTurn();
 }
 
+// Blocks a pending tax action from another player
 void Governor::blockTax(Player& target) {
     checkTurn();
     if (mustCoup_) {
@@ -42,7 +45,6 @@ void Governor::blockTax(Player& target) {
 
     for (auto& p : regularTax) if (p.first == &target && !p.second->is_blocked) taxActions.push_back(p);
     for (auto& p : govTax)     if (p.first == &target && !p.second->is_blocked) taxActions.push_back(p);
-
 
     if (taxActions.empty()) {
         throw IllegalAction("No pending tax action found for " + target.getName());

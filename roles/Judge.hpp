@@ -6,9 +6,13 @@
 
 namespace coup {
 
+// Represents the Judge role who can cancel bribes
 class Judge : public Player {
 public:
+    // Constructs a Judge and registers to the game
     Judge(Game& game, const std::string& name);
+
+    // Cancels a bonus-turn action caused by a bribe
     void undoBribe(Player& target);
 };
 

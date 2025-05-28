@@ -8,28 +8,22 @@
 namespace coup {
 class Player;
 
-
 class Game {
-
-friend class Player;
+    friend class Player;
 
 public:
     Game();
     ~Game();
 
-    void addPlayer(Player* player);
-
-    const std::string& turn() const;
-
-    void nextTurn();
-
-    std::vector<std::string> players() const;
-
-    std::string winner() const;
+    void addPlayer(Player* player);        // Adds a new player to the game
+    const std::string& turn() const;       // Returns the current player's name
+    void nextTurn();                       // Advances to the next valid player
+    std::vector<std::string> players() const; // Returns names of all active players
+    std::string winner() const;            // Returns name of the winner (if any)
 
 private:
-    std::vector<Player*> players_;
-    size_t turnIdx_;
+    std::vector<Player*> players_;         // All players in game (some may be eliminated)
+    size_t turnIdx_;                       // Index of the player whose turn it is
 };
 }
 

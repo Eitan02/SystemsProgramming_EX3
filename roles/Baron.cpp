@@ -4,9 +4,11 @@
 
 using namespace coup;
 
+// Represents a Baron role with investment ability
 Baron::Baron(Game& game, const std::string& name)
     : Player(game, name) {}
 
+// Performs an investment action: trade 3 coins for 6
 void Baron::invest() {
     checkTurn();
     if (mustCoup_) {
