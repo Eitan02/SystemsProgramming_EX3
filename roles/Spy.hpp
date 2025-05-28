@@ -2,7 +2,7 @@
 #ifndef COUP_SPY_HPP
 #define COUP_SPY_HPP
 
-#include "Player.hpp"
+#include "../game/Player.hpp"
 
 namespace coup {
 

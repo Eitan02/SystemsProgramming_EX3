@@ -1,11 +1,11 @@
 // eitan.derdiger@gmail.com
 #include "Player.hpp"
-#include "Baron.hpp"
-#include "Judge.hpp"
-#include "Governor.hpp"
-#include "General.hpp"
-#include "Merchant.hpp"
-#include "Exceptions.hpp"
+#include "../roles/Baron.hpp"
+#include "../roles/Judge.hpp"
+#include "../roles/Governor.hpp"
+#include "../roles/General.hpp"
+#include "../roles/Merchant.hpp"
+#include "../exceptions/Exceptions.hpp"
 #include <algorithm> // For std::min
 
 using namespace coup;

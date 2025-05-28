@@ -1,6 +1,6 @@
 // eitan.derdiger@gmail.com
 #include "Governor.hpp"
-#include "Exceptions.hpp"
+#include "../exceptions/Exceptions.hpp"
 #include <algorithm>
 
 using namespace coup;

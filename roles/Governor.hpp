@@ -2,7 +2,7 @@
 #ifndef COUP_GOVERNOR_HPP
 #define COUP_GOVERNOR_HPP
 
-#include "Player.hpp"
+#include "../game/Player.hpp"
 
 namespace coup {
 

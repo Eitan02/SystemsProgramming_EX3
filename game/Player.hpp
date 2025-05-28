@@ -4,7 +4,7 @@
 
 #include <string>
 #include "Game.hpp"
-#include "Exceptions.hpp"
+#include "../exceptions/Exceptions.hpp"
 
 namespace coup {
 

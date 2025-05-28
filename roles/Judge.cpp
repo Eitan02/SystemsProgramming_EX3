@@ -1,6 +1,6 @@
 // eitan.derdiger@gmail.com
 #include "Judge.hpp"
-#include "Exceptions.hpp"
+#include "../exceptions/Exceptions.hpp"
 
 using namespace coup;
 

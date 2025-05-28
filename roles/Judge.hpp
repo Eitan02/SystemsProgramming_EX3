@@ -2,7 +2,7 @@
 #ifndef COUP_JUDGE_HPP
 #define COUP_JUDGE_HPP
 
-#include "Player.hpp"
+#include "../game/Player.hpp"
 
 namespace coup {
 

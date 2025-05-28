@@ -2,7 +2,7 @@
 #ifndef COUP_BARON_HPP
 #define COUP_BARON_HPP
 
-#include "Player.hpp"
+#include "../game/Player.hpp"
 
 namespace coup {
 

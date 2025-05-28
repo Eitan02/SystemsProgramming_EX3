@@ -1,7 +1,7 @@
 // eitan.derdiger@gmail.com
 #include "Game.hpp"
 #include "Player.hpp"
-#include "Exceptions.hpp"
+#include "../exceptions/Exceptions.hpp"
 
 using namespace coup;
 

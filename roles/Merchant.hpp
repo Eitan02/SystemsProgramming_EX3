@@ -2,7 +2,7 @@
 #ifndef COUP_MERCHANT_HPP
 #define COUP_MERCHANT_HPP
 
-#include "Player.hpp"
+#include "../game/Player.hpp"
 
 namespace coup {
 

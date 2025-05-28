@@ -2,7 +2,7 @@
 #ifndef COUP_GENERAL_HPP
 #define COUP_GENERAL_HPP
 
-#include "Player.hpp"
+#include "../game/Player.hpp"
 
 namespace coup {
 
