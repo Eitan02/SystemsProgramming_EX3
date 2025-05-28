@@ -262,7 +262,7 @@ void Player::executePendingAction(const PendingAction& action) {
             break;
 
         case ActionType::COUP:
-            if (action.target && !action.target->isEliminated() && coins_ >= 7) {
+            if (action.target && !action.target->isEliminated()) {
                 action.target->setEliminated(true);
             }
             break;
