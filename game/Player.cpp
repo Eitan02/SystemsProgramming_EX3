@@ -235,8 +235,9 @@ void Player::coup(Player& target) {
     if (target.isEliminated()) {
         throw TargetInvalid("Cannot coup " + target.getName() + ": already eliminated");
     }
-
+    
     pendingActions_.push_back(PendingAction{ ActionType::COUP, this, &target, false, isBonusTurn() });
+    coins_ -= 7;
     mustCoup_ = false;
     changeTurn();
 }
@@ -262,7 +263,6 @@ void Player::executePendingAction(const PendingAction& action) {
 
         case ActionType::COUP:
             if (action.target && !action.target->isEliminated() && coins_ >= 7) {
-                coins_ -= 7;
                 action.target->setEliminated(true);
             }
             break;
