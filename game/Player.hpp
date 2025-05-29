@@ -60,7 +60,8 @@ protected:
     int sanctionCount_;
     int arrestBlockedCount_;
     bool mustCoup_;
-    int turnsSinceLastBribe_;
+    bool executedActionThisTurn_;
+    bool usedBribeExtraTurn_;
 };
 
 }

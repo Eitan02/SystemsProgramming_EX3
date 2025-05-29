@@ -18,9 +18,10 @@ void Baron::invest() {
         throw InsufficientCoins(name_ + " has insufficient coins to invest");
     }
 
-    if (isBonusTurn()) {
-        pendingActions_.push_back(PendingAction{ ActionType::INVEST, this, nullptr, false, isBonusTurn() });
+    if (isBonusTurn() && executedActionThisTurn_) {
+        pendingActions_.push_back({ ActionType::INVEST, this, nullptr, false, true });
     } else {
+        executedActionThisTurn_ = true;
         coins_ -= 3;
         coins_ += 6;
     }

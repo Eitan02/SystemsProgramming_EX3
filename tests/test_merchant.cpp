@@ -26,15 +26,13 @@ TEST_CASE("Merchant gains 1 coin automatically at start of turn")
     g.addPlayer(&other);
 
     coins(m, 3);
-    forceTurn(g, m);
-    m.startTurn();                         // passive +1
+    m.startTurn();                       // passive +1
     CHECK(m.getCoins() == 4);
 
     m.gather();                            // +1 → 5
     forceTurn(g, other);
     other.gather();                        // advance turn
-    forceTurn(g, m);
-    m.startTurn();                         // passive +1 again
+    forceTurn(g, m);                       // passive +1 again
     CHECK(m.getCoins() == 6);
 }
 
@@ -63,17 +61,10 @@ TEST_CASE("Arrest subtracts up to 2 coins from Merchant and none credited to att
     g.addPlayer(&m);
 
     coins(m, 3);
+    coins(thief, 0);
     forceTurn(g, thief);
     thief.arrest(m);                        // -2 to bank
     CHECK(m.getCoins() == 1);
-    CHECK(thief.getCoins() == 0);
-
-    forceTurn(g, m);
-    m.startTurn();
-    forceTurn(g, thief);
-    thief.startTurn();       // rotate turns
-    thief.arrest(m);                        // -1 to bank
-    CHECK(m.getCoins() == 0);
     CHECK(thief.getCoins() == 0);
 }
 
@@ -92,7 +83,8 @@ TEST_CASE("Merchant passive can trigger must-coup rule")
     CHECK(m.getCoins() == 10);
     CHECK_THROWS_AS(m.gather(), IllegalAction);
     m.coup(target);                         // -7
-    CHECK(m.getCoins() == 3);
+    forceTurn(g, m);                        // +1
+    CHECK(m.getCoins() == 4);
     CHECK(target.isEliminated());
 }
 

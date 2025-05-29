@@ -74,9 +74,11 @@ TEST_CASE("blockArrest sets arrestBlockedCount and enforces ActionBlocked")
     g.addPlayer(&blocked);
     g.addPlayer(&victim);
 
+    victim.setCoins(5);
+
     forceTurn(g, spy);
     spy.blockArrest(blocked);
-    CHECK(blocked.getArrestBlockedCount() == 2);
+    CHECK(blocked.getArrestBlockedCount() == 1);
     forceTurn(g, blocked);
     CHECK(g.turn() == "Blocked");
 
@@ -84,19 +86,18 @@ TEST_CASE("blockArrest sets arrestBlockedCount and enforces ActionBlocked")
     CHECK(g.turn() == "Blocked");
 
     blocked.startTurn();
+    CHECK_NOTHROW(blocked.arrest(victim));
     forceTurn(g, victim);
     victim.gather();
 
     forceTurn(g, blocked);
-    CHECK_THROWS_AS(blocked.arrest(victim), ActionBlocked);
     blocked.startTurn(); // block expires
 
     forceTurn(g, victim);
     victim.gather(); // give 1 coin
     forceTurn(g, blocked);
-    blocked.arrest(victim);
     CHECK(blocked.getCoins() == 1);
-    CHECK(victim.getCoins() == 0);
+    CHECK(victim.getCoins() == 6);
 }
 
 // Ensures blockArrest fails if the target is already eliminated

@@ -20,6 +20,7 @@ public:
     void nextTurn();                       // Advances to the next valid player
     std::vector<std::string> players() const; // Returns names of all active players
     std::string winner() const;            // Returns name of the winner (if any)
+    const std::vector<Player*>& allPlayers() const;
 
 private:
     std::vector<Player*> players_;         // All players in game (some may be eliminated)

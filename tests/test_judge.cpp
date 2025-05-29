@@ -35,7 +35,6 @@ TEST_CASE("Judge cancels bonus action produced by bribe")
     CHECK(g.turn() == "Briber");
     briber.gather();                         // finish bonus
 
-    forceTurn(g, judge);
     CHECK(g.turn() == "Judge");
     judge.undoBribe(briber);                // cancel bonus action
     CHECK(g.turn() == "T");
@@ -113,18 +112,19 @@ TEST_CASE("sanction on Judge from bonus turn charges 4 coins upon execution")
     attacker.setCoins(8);
     forceTurn(g, attacker);
     attacker.bribe();                          // now 4 coins
-    attacker.sanction(judge);                  // queued
-    attacker.gather();                         // end bonus
+    attacker.gather();                         
+    attacker.sanction(judge);                  // queued, bonus
+
+    forceTurn(g,attacker);
+    forceTurn(g,judge);
+    CHECK_THROWS_AS(judge.gather(), ActionBlocked);
 
     forceTurn(g, dummy);
     dummy.gather();
 
     forceTurn(g, attacker);
     attacker.startTurn();                      // sanction executes now
-    CHECK(attacker.getCoins() == 0);
-
-    forceTurn(g, judge);
-    CHECK_THROWS_AS(judge.gather(), ActionBlocked);
+    CHECK(attacker.getCoins() == 1);
 }
 
 // Ensures deferred sanction still respects Judge’s surcharge
@@ -138,21 +138,24 @@ TEST_CASE("deferred sanction on Judge charges 4 coins and blocks")
     g.addPlayer(&judge);
     g.addPlayer(&x);
 
-    attacker.setCoins(7);
+    attacker.setCoins(8);
     forceTurn(g, attacker);
-    attacker.bribe();               // → 3 left
+    attacker.bribe();               // → 4 left
     attacker.sanction(judge);       // queued
     attacker.gather();              // finish bonus
+
+    CHECK_THROWS_AS(judge.gather(), ActionBlocked);
 
     forceTurn(g, x);
     x.gather();
 
     forceTurn(g, attacker);
     attacker.startTurn();           // sanction applies
-    CHECK(attacker.getCoins() == 0);
+    CHECK(attacker.getCoins() == 1);
+    attacker.gather();
 
-    forceTurn(g, judge);
-    CHECK_THROWS_AS(judge.gather(), ActionBlocked);
+    CHECK_NOTHROW(judge.gather());
+
 }
 
 } // TEST_SUITE

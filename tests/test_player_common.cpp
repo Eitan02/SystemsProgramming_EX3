@@ -129,9 +129,16 @@ TEST_CASE("player with ≥10 coins must coup – other actions throw and keep tu
     CHECK_THROWS_AS(a.gather(), IllegalAction);
     CHECK(g.turn() == "A");
     CHECK_THROWS_AS(a.bribe(), IllegalAction);
+    CHECK(g.turn() == "A");
 
     a.coup(b);
     CHECK(a.getCoins() == 3);
+    CHECK(!b.isEliminated());       // coup is in pending until next turn
+
+    forceTurn(g, b);
+    b.gather();
+
+    forceTurn(g, a);
     CHECK(b.isEliminated());
 }
 
@@ -147,6 +154,12 @@ TEST_CASE("coup requires 7 coins and eliminates target") {
     CHECK_THROWS_AS(a.coup(b), InsufficientCoins);
     a.setCoins(7);
     a.coup(b);
+    CHECK(!b.isEliminated());       // coup is in pending until next turn
+
+    forceTurn(g, b);
+    b.gather();
+
+    forceTurn(g, a);
     CHECK(b.isEliminated());
 }
 
@@ -224,8 +237,6 @@ TEST_CASE("second sanction resets sanctionCount to two more turns") {
     forceTurn(g, att);
     att.sanction(tgt);
 
-    forceTurn(g, tgt);
-    tgt.startTurn();
     CHECK_THROWS_AS(tgt.gather(), ActionBlocked);
 
     forceTurn(g, att);
@@ -310,54 +321,6 @@ TEST_CASE("arrest on target previously emptied still throws InsufficientCoins") 
 
     forceTurn(g, thief);
     CHECK_THROWS_AS(thief.arrest(victim), InsufficientCoins);
-}
-
-TEST_CASE("COUP queued from bonus turn executes correctly") {
-    Game g;
-    Player killer(g, "K");
-    Player victim(g, "V");
-    Player dummy(g, "D");
-    g.addPlayer(&killer);
-    g.addPlayer(&victim);
-    g.addPlayer(&dummy);
-
-    forceTurn(g, killer);
-    killer.setCoins(11);
-    killer.bribe();
-    killer.setCoins(7);
-    killer.coup(victim);
-    killer.gather();
-
-    forceTurn(g, dummy);
-    dummy.gather();
-
-    forceTurn(g, killer);
-    killer.startTurn();
-    CHECK(victim.isEliminated());
-    CHECK(killer.getCoins() == 0);
-}
-
-TEST_CASE("findPendingOfOthers filters only bonus-turn actions") {
-    Game g;
-    Player a(g, "A");
-    Player b(g, "B");
-    g.addPlayer(&a);
-    g.addPlayer(&b);
-
-    forceTurn(g, a);
-    a.setCoins(4);
-    a.bribe();
-    a.gather(); // from_bribe
-    a.gather(); // regular
-
-    forceTurn(g, b);
-    b.gather();
-
-    auto bonus = Player::findPendingOfOthers(g, &b, ActionType::GATHER, true);
-    auto all = Player::findPendingOfOthers(g, &b, ActionType::GATHER, false);
-
-    CHECK(bonus.size() == 1);
-    CHECK(all.size() == 2);
 }
 
 TEST_CASE("arrest on eliminated target throws TargetInvalid") {

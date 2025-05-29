@@ -77,19 +77,19 @@ TEST_CASE("invest executed at start of bonus extra turn")
     baron.setCoins(8);
     baron.bribe();                           // pay 4, extra turn
     CHECK(baron.getCoins() == 4);
-    CHECK(g.turn() == "Baron");              // still his bonus turn
+    CHECK(g.turn() == "Baron");              // still his turn after bribe
 
-    baron.invest();                          // queued (from_bribe)
-    baron.invest(); 
-    CHECK(baron.getCoins() == 7);            // not applied yet
+    baron.invest();                          
     CHECK(g.turn() == "Baron");              // still extra turn consumed
+    baron.invest();                          // queued (from bribe)
+    CHECK(baron.getCoins() == 7);            // not applied yet
 
     forceTurn(g, donor);
     donor.gather();
 
     forceTurn(g, baron);
     baron.startTurn();                       // pending executes now (+3 net)
-    CHECK(baron.getCoins() == 7);
+    CHECK(baron.getCoins() == 10);
 }
 
 // Validates Baron's passive: gets 1 coin if sanctioned

@@ -22,7 +22,8 @@ Player::Player(Game& game, const std::string& name)
       sanctionCount_(0),
       arrestBlockedCount_(0),
       mustCoup_(false),
-      turnsSinceLastBribe_(0) {}
+      executedActionThisTurn_ (false),
+      usedBribeExtraTurn_(false) {}
 
 // Copies player state except game reference
 Player::Player(const Player& other)
@@ -36,7 +37,8 @@ Player::Player(const Player& other)
       sanctionCount_(other.sanctionCount_),
       arrestBlockedCount_(other.arrestBlockedCount_),
       mustCoup_(other.mustCoup_),
-      turnsSinceLastBribe_(other.turnsSinceLastBribe_) {}
+      executedActionThisTurn_ (other.executedActionThisTurn_),
+      usedBribeExtraTurn_ (other.usedBribeExtraTurn_) {}
 
 
 // Assignment operator, excluding game reference
@@ -49,7 +51,8 @@ Player& Player::operator=(const Player& other) {
         sanctionCount_ = other.sanctionCount_;
         arrestBlockedCount_ = other.arrestBlockedCount_;
         mustCoup_ = other.mustCoup_;
-        turnsSinceLastBribe_ = other.turnsSinceLastBribe_;
+        executedActionThisTurn_  = other.executedActionThisTurn_ ;
+        usedBribeExtraTurn_ = other.usedBribeExtraTurn_;
     }
     return *this;
 }
@@ -80,12 +83,8 @@ void Player::setArrestBlockedCount(int count) { arrestBlockedCount_ = count; }
 
 // Called at the start of player's turn
 void Player::startTurn() {
-    if (extraTurns_ > 0) {
-        turnsSinceLastBribe_++;
-    } else {
-        turnsSinceLastBribe_ = 0;
-    }
-
+    executedActionThisTurn_ = false;
+    usedBribeExtraTurn_ = false;
     if (sanctionCount_ > 0) --sanctionCount_;
     if (arrestBlockedCount_ > 0) --arrestBlockedCount_;
 
@@ -112,15 +111,19 @@ void Player::checkTurn() const {
 void Player::changeTurn() {
     if (extraTurns_ > 0) {
         extraTurns_--;
+        usedBribeExtraTurn_ = true;
         return;
     }
+    usedBribeExtraTurn_ = false;
     game_.nextTurn();
 }
 
+
 // Checks if current turn is a bonus turn
 bool Player::isBonusTurn() const {
-    return extraTurns_ > 0 && turnsSinceLastBribe_ > 0;
+    return usedBribeExtraTurn_;
 }
+
 
 // Performs the gather action
 void Player::gather() {
@@ -128,10 +131,11 @@ void Player::gather() {
     if (mustCoup_) throw IllegalAction(name_ + " must perform coup with 10+ coins");
     if (sanctionCount_ > 0) throw ActionBlocked(name_ + " is sanctioned and cannot gather");
 
-    if (isBonusTurn()) {
+    if (isBonusTurn() && executedActionThisTurn_) {
         pendingActions_.push_back(PendingAction{ ActionType::GATHER, this, nullptr, false, isBonusTurn() });
     } else {
         coins_ += 1;
+        executedActionThisTurn_ = true;
     }
     changeTurn();
 }
@@ -154,7 +158,6 @@ void Player::bribe() {
 
     coins_ -= 4;
     extraTurns_++;
-    turnsSinceLastBribe_ = 0;
 }
 
 // Performs the arrest action on a target
@@ -166,9 +169,10 @@ void Player::arrest(Player& target) {
     if (target.getCoins() == 0) throw InsufficientCoins("Cannot arrest " + target.getName() + ": has no coins");
     if (&target == lastArrestTarget_) throw IllegalAction("Cannot arrest the same target twice in a row");
 
-    if (isBonusTurn()) {
+    if (isBonusTurn() && executedActionThisTurn_) {
         pendingActions_.push_back(PendingAction{ ActionType::ARREST, this, &target, false, isBonusTurn() });
     } else {
+        executedActionThisTurn_ = true;
         if (dynamic_cast<Merchant*>(&target)) {
             target.coins_ -= std::min(target.coins_, 2);
         } else {
@@ -194,9 +198,10 @@ void Player::sanction(Player& target) {
     if (coins_ < cost) throw InsufficientCoins(name_ + " has insufficient coins for sanction (needs " + std::to_string(cost) + ")");
     if (target.isEliminated()) throw TargetInvalid("Cannot sanction " + target.getName() + ": already eliminated");
 
-    if (isBonusTurn()) {
+    if (isBonusTurn() && executedActionThisTurn_) {
         pendingActions_.push_back(PendingAction{ ActionType::SANCTION, this, &target, false, isBonusTurn() });
     } else {
+        executedActionThisTurn_ = true;
         coins_ -= cost;
         if (dynamic_cast<Baron*>(&target)) {
             target.coins_ += 1;
@@ -291,7 +296,8 @@ void Player::executePendingAction(const PendingAction& action) {
 std::vector<std::pair<Player*, PendingAction*>> Player::findPendingOfOthers(Game& game, Player* exclude, ActionType type, bool onlyBribe) {
     std::vector<std::pair<Player*, PendingAction*>> result;
     for (Player* p : game.players_) {
-        if (!p || p == exclude || p->isEliminated()) continue;
+        if (!p || p->isEliminated()) continue;
+        if (exclude && p == exclude) continue;
 
         for (auto& action : p->pendingActions_) {
             if (action.type == type && (!onlyBribe || action.from_bribe)) {
@@ -299,5 +305,6 @@ std::vector<std::pair<Player*, PendingAction*>> Player::findPendingOfOthers(Game
             }
         }
     }
+
     return result;
 }

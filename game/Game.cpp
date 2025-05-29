@@ -53,13 +53,16 @@ std::vector<std::string> Game::players() const {
     return names;
 }
 
+const std::vector<Player*>& Game::allPlayers() const {
+    return players_;
+}
+
 // Returns the winner's name if there's only one player left
 std::string Game::winner() const {
     auto active = players();
 
-    if (active.size() == 1) {
-        return active.front();
+    if (active.size() != 1) {
+        throw IllegalAction("Game is still ongoing");
     }
-
-    throw IllegalAction("Game is still ongoing");
+    return active.front();
 }

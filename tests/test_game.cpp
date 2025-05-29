@@ -69,17 +69,13 @@ TEST_CASE("Game::winner reports correctly and throws when game ongoing")
 {
     Game g;
     Player a(g, "Solo");
+    Player b(g, "P2");
     g.addPlayer(&a);
-    CHECK_THROWS_AS(g.winner(), IllegalAction); // game not done yet
-
-    // eliminate all but one
-    Player b(g, "Gone1");
-    Player c(g, "Gone2");
     g.addPlayer(&b);
-    g.addPlayer(&c);
-    b.setEliminated(true);
-    c.setEliminated(true);
 
+    CHECK_THROWS_AS(g.winner(), IllegalAction);
+
+    b.setEliminated(true);
     CHECK(g.winner() == "Solo");
 }
 
@@ -88,6 +84,6 @@ TEST_CASE("Game edge cases: empty game and invalid turn access")
 {
     Game g;
     CHECK_THROWS_AS(g.turn(), IllegalAction);
-    CHECK_NOTHROW(g.players().empty());
+    CHECK(g.players().empty());
     CHECK_THROWS_AS(g.winner(), IllegalAction);
 }
