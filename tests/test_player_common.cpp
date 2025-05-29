@@ -7,12 +7,16 @@
 
 using namespace coup;
 
+static void forceTurn(Game& g, Player& p) {
+    while (g.turn() != p.getName()) g.nextTurn();
+}
+
 TEST_SUITE("Base Player - common actions & edge-cases") {
 
-// Basic checks for getter/setter correctness
 TEST_CASE("getters and setters basic") {
     Game g;
     Player p(g, "P");
+    g.addPlayer(&p);
     p.setCoins(5);
     p.setEliminated(false);
     p.setArrestBlockedCount(3);
@@ -23,82 +27,103 @@ TEST_CASE("getters and setters basic") {
     CHECK(p.getArrestBlockedCount() == 3);
 }
 
-// Tests gather and tax behavior when nothing blocks them
 TEST_CASE("gather and tax increment coins when permitted") {
     Game g;
     Player a(g, "A");
     Player b(g, "B");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
 
+    forceTurn(g, a);
     a.gather();
     CHECK(a.getCoins() == 1);
     CHECK(g.turn() == "B");
 
+    forceTurn(g, b);
     b.tax();
     CHECK(b.getCoins() == 0);
+    forceTurn(g, b);
     b.startTurn();
     CHECK(b.getCoins() == 2);
 }
 
-// Sanction blocks gather and tax for two full turns
 TEST_CASE("sanction blocks gather/tax for two turns") {
     Game g;
     Player a(g, "A");
     Player b(g, "B");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
 
+    forceTurn(g, a);
     a.setCoins(3);
     a.sanction(b);
     CHECK(a.getCoins() == 0);
     CHECK(g.turn() == "B");
 
+    forceTurn(g, b);
     CHECK_THROWS_AS(b.gather(), ActionBlocked);
     CHECK(g.turn() == "B");
     CHECK_THROWS_AS(b.tax(), ActionBlocked);
 
-    b.startTurn(); b.startTurn();
+    forceTurn(g, b);
+    b.startTurn();
+    forceTurn(g, b);
+    b.startTurn();
+    forceTurn(g, b);
     b.gather();
     CHECK(b.getCoins() == 1);
 }
 
-// Validates bribe grants 1 extra immediate turn
 TEST_CASE("bribe gives one extra immediate turn") {
     Game g;
     Player a(g, "A");
     Player b(g, "B");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
 
+    forceTurn(g, a);
     a.setCoins(5);
     a.bribe();
     CHECK(a.getCoins() == 1);
     CHECK(g.turn() == "A");
 
+    forceTurn(g, a);
     a.tax();
     CHECK(g.turn() == "A");
 
+    forceTurn(g, a);
     a.gather();
     CHECK(g.turn() == "B");
 }
 
-// Arrest steals 1 coin and target can't be arrested twice in a row
 TEST_CASE("successful arrest transfers 1 coin, cannot repeat same target") {
     Game g;
     Player a(g, "A");
     Player b(g, "B");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
 
+    forceTurn(g, a);
     b.setCoins(2);
     a.arrest(b);
     CHECK(a.getCoins() == 1);
     CHECK(b.getCoins() == 1);
 
+    forceTurn(g, b);
     b.gather();
+    forceTurn(g, a);
     CHECK_THROWS_AS(a.arrest(b), IllegalAction);
 }
 
-// Player with 10+ coins must perform coup or get blocked
 TEST_CASE("player with ≥10 coins must coup – other actions throw and keep turn") {
     Game g;
     Player a(g, "A");
     Player b(g, "B");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
 
     a.setCoins(10);
+    forceTurn(g, a);
     a.startTurn();
 
     CHECK_THROWS_AS(a.gather(), IllegalAction);
@@ -110,12 +135,14 @@ TEST_CASE("player with ≥10 coins must coup – other actions throw and keep tu
     CHECK(b.isEliminated());
 }
 
-// Coup eliminates target and requires 7 coins
 TEST_CASE("coup requires 7 coins and eliminates target") {
     Game g;
     Player a(g, "A");
     Player b(g, "B");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
 
+    forceTurn(g, a);
     a.setCoins(6);
     CHECK_THROWS_AS(a.coup(b), InsufficientCoins);
     a.setCoins(7);
@@ -123,23 +150,25 @@ TEST_CASE("coup requires 7 coins and eliminates target") {
     CHECK(b.isEliminated());
 }
 
-// Actions out of turn throw and do not change turn state
 TEST_CASE("NotYourTurn thrown when acting out of turn; turn unchanged on error") {
     Game g;
     Player a(g, "A");
     Player b(g, "B");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
 
     CHECK_THROWS_AS(b.gather(), NotYourTurn);
     CHECK(g.turn() == "A");
 
+    forceTurn(g, a);
     a.gather();
     CHECK(g.turn() == "B");
 }
 
-// Copy constructor copies visible state, does not re-register player
 TEST_CASE("Player copy constructor duplicates visible state without re-registering") {
     Game g;
     Player original(g, "Orig");
+    g.addPlayer(&original);
     original.setCoins(5);
 
     Player clone(original);
@@ -148,11 +177,12 @@ TEST_CASE("Player copy constructor duplicates visible state without re-registeri
     CHECK(g.players().size() == 1);
 }
 
-// Assignment operator copies fields and supports self-assignment
 TEST_CASE("assignment operator copies fields and survives self-assignment") {
     Game g;
     Player p1(g, "P1");
     Player p2(g, "P2");
+    g.addPlayer(&p1);
+    g.addPlayer(&p2);
 
     p1.setCoins(4);
     p2 = p1;
@@ -163,9 +193,8 @@ TEST_CASE("assignment operator copies fields and survives self-assignment") {
     CHECK(p2.getCoins() == 4);
 }
 
-// Directly test execution of simple pending actions
 TEST_CASE("executePendingAction basic paths") {
-    Game g; Player p(g, "P");
+    Game g; Player p(g, "P"); g.addPlayer(&p);
 
     PendingAction tax{ActionType::TAX, &p, nullptr, false, false};
     p.executePendingAction(tax);
@@ -176,9 +205,10 @@ TEST_CASE("executePendingAction basic paths") {
     CHECK(p.getCoins() == 3);
 }
 
-// Verifies pending tax is found correctly by search
 TEST_CASE("findPendingOfOthers locates pending TAX") {
     Game g; Player a(g, "A"); Player b(g, "B");
+    g.addPlayer(&a); g.addPlayer(&b);
+    forceTurn(g, a);
     a.tax();
 
     auto list = Player::findPendingOfOthers(g, &b, ActionType::TAX, false);
@@ -186,26 +216,30 @@ TEST_CASE("findPendingOfOthers locates pending TAX") {
     CHECK(list.front().first == &a);
 }
 
-// Second sanction restarts duration rather than stack
 TEST_CASE("second sanction resets sanctionCount to two more turns") {
     Game g;
     Player att(g,"Att"); Player tgt(g,"Tar");
+    g.addPlayer(&att); g.addPlayer(&tgt);
     att.setCoins(6);
+    forceTurn(g, att);
     att.sanction(tgt);
 
+    forceTurn(g, tgt);
     tgt.startTurn();
     CHECK_THROWS_AS(tgt.gather(), ActionBlocked);
 
-    att.startTurn();
+    forceTurn(g, att);
     att.sanction(tgt);
 
+    forceTurn(g, tgt);
     CHECK_THROWS_AS(tgt.gather(), ActionBlocked);
 }
 
-// Arrest fails when target has no coins
 TEST_CASE("arrest on target with zero coins throws") {
     Game g;
     Player thief(g,"Thief"); Player poor(g,"Poor");
+    g.addPlayer(&thief); g.addPlayer(&poor);
+    forceTurn(g, thief);
     CHECK_THROWS_AS(thief.arrest(poor), InsufficientCoins);
 }
 
@@ -213,84 +247,110 @@ TEST_CASE("arrest on target with zero coins throws") {
 
 TEST_SUITE("Edge cases – InsufficientCoins on various actions") {
 
-// Bribe fails when player has fewer than 4 coins
 TEST_CASE("bribe throws InsufficientCoins when player has <4 coins") {
     Game g;
     Player a(g, "A");
+    g.addPlayer(&a);
+    forceTurn(g, a);
     a.setCoins(3);
     CHECK_THROWS_AS(a.bribe(), InsufficientCoins);
     CHECK(g.turn() == "A");
     CHECK(a.getCoins() == 3);
 }
 
-// Sanction fails when attacker lacks coins: 3 for regular, 4 for Judge
 TEST_CASE("sanction throws InsufficientCoins when attacker coins < cost") {
     Game g;
     Player attacker(g, "Att");
     Player target(g, "Tar");
+    g.addPlayer(&attacker);
+    g.addPlayer(&target);
 
+    forceTurn(g, attacker);
     attacker.setCoins(2);
     CHECK_THROWS_AS(attacker.sanction(target), InsufficientCoins);
     CHECK(g.turn() == "Att");
 
     Judge judge(g, "Judge");
-    g.nextTurn();
-    g.nextTurn();
+    g.addPlayer(&judge);
+    g.nextTurn(); g.nextTurn(); // move back to Att
+    forceTurn(g, attacker);
     attacker.setCoins(3);
     CHECK_THROWS_AS(attacker.sanction(judge), InsufficientCoins);
     CHECK(g.turn() == "Att");
 }
 
-// Coup throws if player has less than 7 coins
 TEST_CASE("quick check: coup with 0 coins throws InsufficientCoins") {
     Game g;
     Player a(g, "A");
     Player b(g, "B");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
+    forceTurn(g, a);
     CHECK_THROWS_AS(a.coup(b), InsufficientCoins);
 }
 
 } // TEST_SUITE
 
-// Arrest still fails if target already has 0 coins from earlier arrest
 TEST_CASE("arrest on target previously emptied still throws InsufficientCoins") {
     Game g;
     Player thief(g, "T");
     Player victim(g, "V");
+    g.addPlayer(&thief);
+    g.addPlayer(&victim);
+
+    forceTurn(g, victim);
     victim.setCoins(1);
+    forceTurn(g, thief);
     thief.arrest(victim);
+
+    forceTurn(g, thief);
     thief.startTurn();
+    forceTurn(g, victim);
     victim.startTurn();
+
+    forceTurn(g, thief);
     CHECK_THROWS_AS(thief.arrest(victim), InsufficientCoins);
 }
 
-// Validates that a deferred COUP from bribe executes and eliminates
 TEST_CASE("COUP queued from bonus turn executes correctly") {
     Game g;
     Player killer(g, "K");
     Player victim(g, "V");
     Player dummy(g, "D");
+    g.addPlayer(&killer);
+    g.addPlayer(&victim);
+    g.addPlayer(&dummy);
 
+    forceTurn(g, killer);
     killer.setCoins(11);
     killer.bribe();
     killer.setCoins(7);
     killer.coup(victim);
     killer.gather();
+
+    forceTurn(g, dummy);
     dummy.gather();
+
+    forceTurn(g, killer);
     killer.startTurn();
     CHECK(victim.isEliminated());
     CHECK(killer.getCoins() == 0);
 }
 
-// Checks that only bonus-turn actions are returned with onlyBribe=true
 TEST_CASE("findPendingOfOthers filters only bonus-turn actions") {
     Game g;
     Player a(g, "A");
     Player b(g, "B");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
 
+    forceTurn(g, a);
     a.setCoins(4);
     a.bribe();
     a.gather(); // from_bribe
     a.gather(); // regular
+
+    forceTurn(g, b);
     b.gather();
 
     auto bonus = Player::findPendingOfOthers(g, &b, ActionType::GATHER, true);
@@ -300,21 +360,27 @@ TEST_CASE("findPendingOfOthers filters only bonus-turn actions") {
     CHECK(all.size() == 2);
 }
 
-// Arrest fails if target is eliminated
 TEST_CASE("arrest on eliminated target throws TargetInvalid") {
     Game g;
     Player thief(g, "T");
     Player dead(g, "D");
+    g.addPlayer(&thief);
+    g.addPlayer(&dead);
+
     dead.setEliminated(true);
+    forceTurn(g, thief);
     CHECK_THROWS_AS(thief.arrest(dead), TargetInvalid);
 }
 
-// Sanction fails if target is eliminated
 TEST_CASE("sanction on eliminated target throws TargetInvalid") {
     Game g;
     Player attacker(g, "A");
     Player dead(g, "D");
+    g.addPlayer(&attacker);
+    g.addPlayer(&dead);
+
     attacker.setCoins(3);
     dead.setEliminated(true);
+    forceTurn(g, attacker);
     CHECK_THROWS_AS(attacker.sanction(dead), TargetInvalid);
 }

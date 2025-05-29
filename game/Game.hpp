@@ -16,7 +16,7 @@ public:
     ~Game();
 
     void addPlayer(Player* player);        // Adds a new player to the game
-    const std::string& turn() const;       // Returns the current player's name
+    std::string turn() const;             // Returns the current player's name
     void nextTurn();                       // Advances to the next valid player
     std::vector<std::string> players() const; // Returns names of all active players
     std::string winner() const;            // Returns name of the winner (if any)

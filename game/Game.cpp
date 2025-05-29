@@ -2,6 +2,7 @@
 #include "Game.hpp"
 #include "Player.hpp"
 #include "../exceptions/Exceptions.hpp"
+#include <iostream>
 
 using namespace coup;
 
@@ -16,21 +17,17 @@ void Game::addPlayer(Player* player) {
     if (players_.size() >= 6) {
         throw IllegalAction("Cannot add more than 6 players");
     }
-
     players_.push_back(player);
-
-    if (players_.size() == 1) {
-        players_[0]->startTurn();
-    }
 }
 
 // Returns the name of the player whose turn it is
-const std::string& Game::turn() const {
+std::string Game::turn() const {
     if (players_.empty()) {
         throw IllegalAction("No players in game");
     }
     return players_[turnIdx_]->getName();
 }
+
 
 // Advances the turn to the next non-eliminated player
 void Game::nextTurn() {

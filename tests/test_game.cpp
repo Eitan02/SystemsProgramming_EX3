@@ -7,6 +7,12 @@
 
 using namespace coup;
 
+static void forceTurn(Game& g, Player& p) {
+    while (g.turn() != p.getName()) {
+        g.nextTurn();
+    }
+}
+
 // Verifies player addition, turn order and active players list
 TEST_CASE("Game::addPlayer, turn order and players list")
 {
@@ -14,6 +20,9 @@ TEST_CASE("Game::addPlayer, turn order and players list")
     Player a(g, "Alice");
     Player b(g, "Bob");
     Player c(g, "Charlie");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
+    g.addPlayer(&c);
 
     CHECK(g.turn() == "Alice");                 // first player starts
     CHECK(g.players().size() == 3);
@@ -26,7 +35,12 @@ TEST_CASE("Game::addPlayer, turn order and players list")
         Player d(g, "D");
         Player e(g, "E");
         Player f(g, "F");
-        CHECK_THROWS_AS(Player(g, "G"), IllegalAction);
+        g.addPlayer(&d);
+        g.addPlayer(&e);
+        g.addPlayer(&f);
+        Player g7(g, "G");
+        CHECK_THROWS_AS(g.addPlayer(&g7), IllegalAction);
+
     }
 }
 
@@ -37,7 +51,11 @@ TEST_CASE("Game::nextTurn cycles and skips eliminated players")
     Player a(g, "A");
     Player b(g, "B");
     Player c(g, "C");
+    g.addPlayer(&a);
+    g.addPlayer(&b);
+    g.addPlayer(&c);
 
+    forceTurn(g, a);
     g.nextTurn();                               // A → B
     CHECK(g.turn() == "B");
 
@@ -51,11 +69,14 @@ TEST_CASE("Game::winner reports correctly and throws when game ongoing")
 {
     Game g;
     Player a(g, "Solo");
+    g.addPlayer(&a);
     CHECK_THROWS_AS(g.winner(), IllegalAction); // game not done yet
 
     // eliminate all but one
     Player b(g, "Gone1");
     Player c(g, "Gone2");
+    g.addPlayer(&b);
+    g.addPlayer(&c);
     b.setEliminated(true);
     c.setEliminated(true);
 

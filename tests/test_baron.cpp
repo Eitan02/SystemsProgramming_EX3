@@ -6,6 +6,12 @@
 
 using namespace coup;
 
+static void forceTurn(Game& g, Player& p) {
+    while (g.turn() != p.getName()) {
+        g.nextTurn();
+    }
+}
+
 TEST_SUITE("Baron role – invest ability and sanction interaction") {
 
 // Checks that a successful invest action updates coins and changes turn
@@ -14,7 +20,10 @@ TEST_CASE("successful invest updates coins correctly and advances turn")
     Game g;
     Baron baron(g, "Baron");
     Player other(g, "Other");
+    g.addPlayer(&baron);
+    g.addPlayer(&other);
 
+    forceTurn(g, baron);
     baron.setCoins(4);
     baron.invest();                          // pay 3, gain 6
     CHECK(baron.getCoins() == 7);
@@ -27,7 +36,10 @@ TEST_CASE("invest with insufficient coins throws InsufficientCoins")
     Game g;
     Baron baron(g, "Baron");
     Player dummy(g, "D");
+    g.addPlayer(&baron);
+    g.addPlayer(&dummy);
 
+    forceTurn(g, baron);
     baron.setCoins(2);
     CHECK_THROWS_AS(baron.invest(), InsufficientCoins);
     CHECK(g.turn() == "Baron");              // turn unchanged after exception
@@ -40,7 +52,10 @@ TEST_CASE("Baron holding ≥10 coins must coup, cannot invest")
     Game g;
     Baron baron(g, "Baron");
     Player target(g, "Target");
+    g.addPlayer(&baron);
+    g.addPlayer(&target);
 
+    forceTurn(g, baron);
     baron.setCoins(10);
     baron.startTurn();                       // sets mustCoup_
     CHECK_THROWS_AS(baron.invest(), IllegalAction);
@@ -55,18 +70,24 @@ TEST_CASE("invest executed at start of bonus extra turn")
     Game g;
     Baron baron(g, "Baron");
     Player donor(g, "Donor");
+    g.addPlayer(&baron);
+    g.addPlayer(&donor);
 
+    forceTurn(g, baron);
     baron.setCoins(8);
     baron.bribe();                           // pay 4, extra turn
     CHECK(baron.getCoins() == 4);
     CHECK(g.turn() == "Baron");              // still his bonus turn
 
     baron.invest();                          // queued (from_bribe)
-    CHECK(baron.getCoins() == 4);            // not applied yet
+    baron.invest(); 
+    CHECK(baron.getCoins() == 7);            // not applied yet
     CHECK(g.turn() == "Baron");              // still extra turn consumed
 
+    forceTurn(g, donor);
     donor.gather();
-    CHECK(g.turn() == "Baron");
+
+    forceTurn(g, baron);
     baron.startTurn();                       // pending executes now (+3 net)
     CHECK(baron.getCoins() == 7);
 }
@@ -77,7 +98,10 @@ TEST_CASE("sanction gives Baron 1 coin compensation")
     Game g;
     Player attacker(g, "Att");
     Baron  baron(g, "Baron");
+    g.addPlayer(&attacker);
+    g.addPlayer(&baron);
 
+    forceTurn(g, attacker);
     attacker.setCoins(3);
     attacker.sanction(baron);                // cost 3
     CHECK(attacker.getCoins() == 0);

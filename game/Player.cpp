@@ -12,19 +12,32 @@ using namespace coup;
 
 // Creates and registers a new player to the game
 Player::Player(Game& game, const std::string& name)
-    : game_(game), name_(name), coins_(0),
-      eliminated_(false), lastArrestTarget_(nullptr),
-      sanctionCount_(0), arrestBlockedCount_(0), mustCoup_(false),
-      extraTurns_(0), turnsSinceLastBribe_(0) {
-    game_.addPlayer(this);
-}
+    : game_(game),
+      name_(name),
+      coins_(0),
+      eliminated_(false),
+      lastArrestTarget_(nullptr),
+      extraTurns_(0),
+      pendingActions_(),
+      sanctionCount_(0),
+      arrestBlockedCount_(0),
+      mustCoup_(false),
+      turnsSinceLastBribe_(0) {}
 
 // Copies player state except game reference
 Player::Player(const Player& other)
-    : game_(other.game_), name_(other.name_),
-      coins_(other.coins_), eliminated_(other.eliminated_), lastArrestTarget_(other.lastArrestTarget_),
-      sanctionCount_(other.sanctionCount_), arrestBlockedCount_(other.arrestBlockedCount_),
-      mustCoup_(other.mustCoup_), extraTurns_(other.extraTurns_), turnsSinceLastBribe_(other.turnsSinceLastBribe_) {}
+    : game_(other.game_),
+      name_(other.name_),
+      coins_(other.coins_),
+      eliminated_(other.eliminated_),
+      lastArrestTarget_(other.lastArrestTarget_),
+      extraTurns_(other.extraTurns_),
+      pendingActions_(other.pendingActions_),
+      sanctionCount_(other.sanctionCount_),
+      arrestBlockedCount_(other.arrestBlockedCount_),
+      mustCoup_(other.mustCoup_),
+      turnsSinceLastBribe_(other.turnsSinceLastBribe_) {}
+
 
 // Assignment operator, excluding game reference
 Player& Player::operator=(const Player& other) {
@@ -150,8 +163,8 @@ void Player::arrest(Player& target) {
     if (mustCoup_) throw IllegalAction(name_ + " must perform coup with 10+ coins");
     if (arrestBlockedCount_ > 0) throw ActionBlocked(name_ + " is blocked from arrest");
     if (target.isEliminated()) throw TargetInvalid("Cannot arrest " + target.getName() + ": already eliminated");
-    if (&target == lastArrestTarget_) throw IllegalAction("Cannot arrest the same target twice in a row");
     if (target.getCoins() == 0) throw InsufficientCoins("Cannot arrest " + target.getName() + ": has no coins");
+    if (&target == lastArrestTarget_) throw IllegalAction("Cannot arrest the same target twice in a row");
 
     if (isBonusTurn()) {
         pendingActions_.push_back(PendingAction{ ActionType::ARREST, this, &target, false, isBonusTurn() });
