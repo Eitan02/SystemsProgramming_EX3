@@ -18,13 +18,7 @@ void Governor::tax() {
     if (sanctionCount_ > 0) {
         throw ActionBlocked(name_ + " is sanctioned and cannot tax");
     }
-
-    if (isBonusTurn()) {
-        pendingActions_.push_back(PendingAction{ ActionType::TAX_Governor, this, nullptr, false, isBonusTurn() });
-    } else {
-        coins_ += 3;
-    }
-
+    pendingActions_.push_back(PendingAction{ ActionType::TAX_Governor, this, nullptr, false, isBonusTurn() });
     changeTurn();
 }
 

@@ -4,38 +4,25 @@
 
 using namespace coup;
 
-// Represents the General role with coup-blocking ability
-General::General(Game& game, const std::string& name)
-    : Player(game, name) {}
+General::General(Game& g ,const std::string& n) : Player(g,n) {}
 
-// Cancels a pending coup against a specific player
-void General::preventCoup(Player& target) {
+void General::preventCoup(Player& coupOwner)
+{
     checkTurn();
-    if (mustCoup_) {
-        throw IllegalAction(name_ + " must perform coup with 10+ coins");
-    }
-    if (coins_ < 5) {
-        throw InsufficientCoins(name_ + " has insufficient coins to prevent coup");
-    }
-    if (target.isEliminated()) {
-        throw TargetInvalid("Cannot prevent coup: target is eliminated");
+    if (mustCoup_)            throw IllegalAction(name_+" must perform coup with 10+ coins");
+    if (coins_ < 5)           throw InsufficientCoins(name_+" has insufficient coins to prevent coup");
+    if (coupOwner.isEliminated()) throw TargetInvalid("Cannot prevent coup: target eliminated");
+
+    auto allCoups = Player::findPendingOfOthers(game_, this ,ActionType::COUP ,false);
+
+    PendingAction* toBlock = nullptr;
+    for (auto& [owner ,act] : allCoups) {
+        if (owner == &coupOwner && !act->is_blocked) { toBlock = act; break; }
     }
 
-    auto coups = Player::findPendingOfOthers(game_, this, ActionType::COUP, false);
+    if (!toBlock) throw IllegalAction("No pending coup initiated by "+coupOwner.getName());
 
-    std::pair<Player*, PendingAction*> match = {nullptr, nullptr};
-    for (auto& p : coups) {
-        if (p.second->target == &target && !p.second->is_blocked) {
-            match = p;
-            break;
-        }
-    }
-
-    if (!match.second) {
-        throw IllegalAction("No pending coup found against " + target.getName());
-    }
-
-    match.second->is_blocked = true;
+    toBlock->is_blocked = true;
     coins_ -= 5;
     changeTurn();
 }

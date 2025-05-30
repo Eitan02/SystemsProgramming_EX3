@@ -49,4 +49,13 @@ valgrind: Main
 
 # Clean build artifacts
 clean:
-	rm -f $(MAIN_OBJ) $(TEST_OBJECTS) $(OBJS) $(TARGET) $(TEST_TARGET)
+	rm -f $(MAIN_OBJ) $(TEST_OBJECTS) $(OBJS) $(GUI_OBJS) $(TARGET) $(TEST_TARGET) Gui
+
+
+# GUI
+SFML_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+GUI_SRCS = $(wildcard gui/*.cpp)
+GUI_OBJS = $(GUI_SRCS:.cpp=.o)
+
+Gui: $(GUI_OBJS) $(OBJS)
+	$(CXX) $(CXXFLAGS) -o Gui $(GUI_OBJS) $(OBJS) $(SFML_FLAGS)
