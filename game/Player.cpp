@@ -174,7 +174,8 @@ void Player::arrest(Player& target) {
     } else {
         executedActionThisTurn_ = true;
         if (dynamic_cast<Merchant*>(&target)) {
-            target.coins_ -= std::min(target.coins_, 2);
+            if(target.coins_<2) { target.coins_ = 0;}
+            else { target.coins_ -= 2; }
         } else {
             target.coins_ -= 1;
             coins_ += 1;

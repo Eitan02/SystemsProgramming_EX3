@@ -39,8 +39,10 @@ public:
     /*-------------- setters ---------------*/
     void setName (const std::string& n) { name_.setString(n);        }
     void setRole (const std::string& r) { role_.setString(r);        }
-    void setCoins(int c)                { coins_.setString("Coins: " + std::to_string(c)); }
-
+    void setCoins(int c) {
+        if (c < 0) coins_.setString("Coins: ???");
+        else coins_.setString("Coins: " + std::to_string(c));
+    }
     void setMinimal(bool m)             { minimal_ = m; }
     void setEliminated(bool e)          { eliminated_ = e;  refreshColours(); }
     void setActive(bool a)              { active_     = a;  refreshColours(); }

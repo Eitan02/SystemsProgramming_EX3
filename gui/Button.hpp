@@ -3,9 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
-/*-----------------------------------------------------------
- *  A very small utility-button class for the GUI.
- *----------------------------------------------------------*/
+// utility button class for the GUI.
 class Button {
 public:
     Button() : enabled_(false), hovered_(false), initialEnabled_(false) {}

@@ -17,6 +17,8 @@ public:
 
     // Blocks arrest attempts on the given target
     void blockArrest(Player& target);
+
+    std::string getRole() const override { return "Spy"; }
 };
 
 }

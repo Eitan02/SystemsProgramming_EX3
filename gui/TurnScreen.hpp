@@ -83,7 +83,7 @@ inline TurnScreen::TurnScreen(sf::Font& f,const sf::Vector2u& ws,
     title_.setPosition(20,315);
 
     info_.setFont(font_); info_.setCharacterSize(18);
-    std::ostringstream os; os<<"Role: "<<views_[meIdx_].getName()
+    std::ostringstream os; os<<"Role: "<<me_->getRole()
         <<"  |  Coins: "<<me_->getCoins();
     info_.setString(os.str()); info_.setPosition(20,345);
 
@@ -95,12 +95,11 @@ inline TurnScreen::TurnScreen(sf::Font& f,const sf::Vector2u& ws,
     err_.setFillColor(sf::Color(200,80,80));
     err_.setPosition(20, win_.y-38);
 
-    submit_=Button(font_,"Submit",20,{win_.x-220,win_.y-100},{180,60});
-    submit_.setEnabled(false);
+    submit_ = Button(font_, "Submit", 20,
+                 {static_cast<float>(win_.x) - 220.f, static_cast<float>(win_.y) - 100.f},
+                 {180, 60});
 
-    exitB_   = Button(font_,"Exit",16,{win_.x-110,20},{90,36});
-    restartB_= Button(font_,"Restart",16,{win_.x-210,20},{90,36});
-    finishB_ = Button(font_,"Finish",16,{win_.x-310,20},{90,36});
+    submit_.setEnabled(false);
 
     buildActions(); buildTargets(); refreshHighlight();
 }
@@ -157,10 +156,6 @@ inline void TurnScreen::refreshHighlight(){
 
 inline bool TurnScreen::handle(const sf::Event& e,const sf::RenderWindow& w)
 {
-    if(exitB_.handlePressed(e,w))  { code_=ActionCode::None; target_=-99; ready_=true; return true; }
-    if(restartB_.handlePressed(e,w)){ code_=ActionCode::None; target_=-98; ready_=true; return true; }
-    if(finishB_.handlePressed(e,w)) { code_=ActionCode::None; target_=-97; ready_=true; return true; }
-
     for(auto& a:acts_) if(a.btn.handlePressed(e,w)){
         code_=a.code; if(!needsTarget(code_)) target_=-1;
         refreshHighlight();
@@ -186,6 +181,6 @@ inline void TurnScreen::draw(sf::RenderWindow& w) const
     for(auto& a:acts_) a.btn.draw(w);
     if(needsTarget(code_)){ w.draw(chooseT_); for(auto& t:tgts_) t.btn.draw(w); }
 
-    submit_.draw(w); exitB_.draw(w); restartB_.draw(w); finishB_.draw(w);
+    submit_.draw(w);
     if(!err_.getString().isEmpty()) w.draw(err_);
 }

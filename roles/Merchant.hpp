@@ -14,6 +14,9 @@ public:
 
     // Starts the turn and adds 1 coin if passive condition met
     void startTurn() override;
+
+    std::string getRole() const override { return "Merchant"; }
+
 };
 
 }

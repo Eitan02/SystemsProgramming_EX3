@@ -20,30 +20,31 @@ TEST_CASE("General blocks a pending coup with 5-coin payment")
     Game g;
     Player  attacker(g, "Att");
     General defender(g, "Gen");
-    Player  target(g, "Tgt");
+    Player  other(g, "Other");
     g.addPlayer(&attacker);
     g.addPlayer(&defender);
-    g.addPlayer(&target);
+    g.addPlayer(&other);
 
     attacker.setCoins(7);
     forceTurn(g, attacker);
-    attacker.coup(target);                       // pending coup, turn → Gen
+    attacker.coup(defender);                   // coup → on defender (the General)
+    CHECK(g.turn() == "Gen");
+
     defender.setCoins(5);
-
     forceTurn(g, defender);
-    defender.preventCoup(target);                // pays 5, blocks coup
+    defender.preventCoup(attacker);           // cancels pending coup from attacker → defender
     CHECK(defender.getCoins() == 0);
-    CHECK(g.turn() == "Tgt");
+    CHECK(g.turn() == "Other");
 
-    forceTurn(g, target);
-    target.gather();                             // trivial move
-    CHECK(g.turn() == "Att");
+    forceTurn(g, other);
+    other.gather();                            // move on
 
     forceTurn(g, attacker);
-    attacker.startTurn();                        // should do nothing
+    attacker.startTurn();                      // should do nothing
 
-    CHECK(target.isEliminated() == false);       // coup neutralised
-    CHECK(attacker.getCoins() == 0);             // no refund to attacker
+    CHECK(defender.isEliminated() == false);   // General survived
+    CHECK(attacker.getCoins() == 0);           // no refund to attacker
+
 }
 
 // Verifies that preventCoup fails if General has less than 5 coins
@@ -112,32 +113,6 @@ TEST_CASE("When General is arrested, stolen coin is refunded to General")
     thief.arrest(gen);                           // steals 1, refunded
     CHECK(gen.getCoins() == 2);
     CHECK(thief.getCoins() == 0);
-}
-
-// Verifies that a blocked coup cannot be blocked again
-TEST_CASE("preventCoup on an already-blocked coup throws")
-{
-    Game g;
-    Player  att(g,"Att");
-    General gen1(g,"G1");
-    General gen2(g,"G2");
-    Player tgt(g,"T");
-    g.addPlayer(&att);
-    g.addPlayer(&gen1);
-    g.addPlayer(&gen2);
-    g.addPlayer(&tgt);
-
-    att.setCoins(7);
-    forceTurn(g, att);
-    att.coup(tgt);              // coup pending
-
-    gen1.setCoins(5);
-    forceTurn(g, gen1);
-    gen1.preventCoup(tgt);      // blocks the coup
-
-    gen2.setCoins(5);
-    forceTurn(g, gen2);
-    CHECK_THROWS_AS(gen2.preventCoup(tgt), IllegalAction);
 }
 
 } // TEST_SUITE

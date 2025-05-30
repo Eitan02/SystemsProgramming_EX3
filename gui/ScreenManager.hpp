@@ -163,12 +163,20 @@ inline void ScreenManager::refreshViews()
         auto& v = views_[i];
         auto* p = players_[i].get();
         v.setName(p->getName());
-        v.setRole(roleOf(p));
-        v.setCoins(p->getCoins());
+        
+        if (i == currentIdx_) {
+            v.setRole(p->getRole());
+            v.setCoins(p->getCoins());
+        } else {
+            v.setRole("???");
+            v.setCoins(-1);
+        }
+
         v.setEliminated(p->isEliminated());
-        v.setActive(i==currentIdx_);
-        v.setMinimal(false);                     // debug-mode
+        v.setActive(i == currentIdx_);
+        v.setMinimal(false);
     }
+
 }
 inline std::string ScreenManager::roleOf(coup::Player* p)
 {

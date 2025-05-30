@@ -25,8 +25,11 @@ TEST_CASE("Governor tax gives 3 coins and advances turn")
 
     forceTurn(g, gov);
     gov.tax();
+    forceTurn(g,gov);
     CHECK(gov.getCoins() == 3);
+    gov.gather();
     CHECK(g.turn() == "P");
+
 }
 
 // Tests that sanction prevents Governor from using tax for two turns
@@ -48,7 +51,8 @@ TEST_CASE("sanction prevents Governor from taxing for two turns")
 
     gov.startTurn(); gov.startTurn();             // wait out sanction
     forceTurn(g, gov);
-    gov.tax();                                    // now allowed
+    gov.tax();
+    forceTurn(g,gov);                                    // now allowed
     CHECK(gov.getCoins() == 3);
 }
 

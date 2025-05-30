@@ -14,6 +14,9 @@ public:
 
     // Cancels a bonus-turn action caused by a bribe
     void undoBribe(Player& target);
+
+    std::string getRole() const override { return "Judge"; }
+
 };
 
 }

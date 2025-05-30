@@ -29,7 +29,7 @@ public:
     int getCoins() const;
     bool isEliminated() const;
     int getArrestBlockedCount() const;
-
+    virtual std::string getRole() const { return "Player"; }
     void setCoins(int coins);
     void setEliminated(bool eliminated);
     void setArrestBlockedCount(int count);

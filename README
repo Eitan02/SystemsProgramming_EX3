@@ -1,0 +1,116 @@
+# COUP – OOP & GUI Simulation in C++
+
+This project is a full-featured simulation of the board game Coup, written in C++17 with object-oriented design, exception safety, and a graphical user interface (GUI) using SFML.
+
+It supports all defined roles and rules from the assignment, including:
+
+* Turn management
+* Special actions and blocks
+* Bonus turns via bribe
+* Pending actions queue
+* Visual interface with buttons, roles, coins, and winner screen
+
+## Project Structure
+.
+├── gui/                  # All GUI logic (SFML-based)
+│   ├── ScreenManager.hpp      # Handles state switching (Lobby, Turn, End)
+│   ├── LobbyScreen.hpp        # Player selection and role assignment
+│   ├── TurnScreen.hpp         # Displays all actions for current player
+│   ├── PlayerView.hpp         # Card-like display of each player (name, role, coins)
+│   ├── Button.hpp             # Lightweight button class
+│   └── resources/             # Fonts, images, etc.
+│
+├── game/                # Core game engine
+│   ├── Game.hpp / .cpp        # Turn order, player list, winner logic
+│   ├── Player.hpp / .cpp      # Common logic for all players (coins, turns, pending actions)
+│
+├── roles/               # Role-specific logic (inherits from Player)
+│   ├── Governor.hpp / .cpp
+│   ├── Spy.hpp / .cpp
+│   ├── Baron.hpp / .cpp
+│   ├── General.hpp / .cpp
+│   ├── Judge.hpp / .cpp
+│   └── Merchant.hpp / .cpp
+│
+├── exceptions/          # Custom exception classes
+│   └── Exceptions.hpp / .cpp
+│
+├── tests/               # Doctest-based test suites for all functionality
+│   └── test_*.cpp
+│
+├── main.cpp             # Console simulation (optional)
+├── gui/main_gui.cpp     # Launches the GUI
+├── Makefile             # Build system
+└── README.md            # This file
+
+## How to Build and Run
+
+### Prerequisites
+
+Make sure you have:
+
+* A C++17 compatible compiler (g++)
+* SFML 2.5+ installed (use your package manager or build from source)
+* make utility available
+
+On Ubuntu:
+
+sudo apt update
+sudo apt install libsfml-dev g++ make
+
+
+### Build Instructions
+
+To build the graphical game:
+
+make Gui
+
+
+To build the console simulation (main.cpp):
+
+make Main
+
+
+To run the GUI game:
+
+./Gui
+
+
+To run the CLI simulation:
+./Main
+
+
+To run the unit tests:
+
+make test
+
+
+To run tests with memory checking (Valgrind):
+
+make valgrind
+
+
+To clean up build files:
+make clean
+
+
+## Features Implemented
+
+* All roles with their active/passive abilities
+* Full action validation and blocking
+* Bonus turns with bribe logic
+* Dynamic GUI with buttons enabled/disabled per player state
+* End-of-game screen with winner
+* Prevent illegal actions during turn (e.g., arrest same target twice)
+* Comprehensive test coverage using Doctest
+
+## Author
+
+Eitan Derdiger
+Email: [eitan.derdiger@gmail.com]
+
+## Notes
+
+* GUI uses SFML and supports dynamic button locking based on game logic (e.g., sanctions, must-coup).
+* All files include full exception safety and ownership separation between Game and Player.
+* Project built and tested on Linux (Ubuntu).

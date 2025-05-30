@@ -8,7 +8,7 @@
 class LobbyScreen {
 public:
     LobbyScreen(sf::Font& f ,const sf::Vector2u& ws)
-        : font_(f) ,focus_(false) ,roleIdx_(0) ,exit_(false) ,win_(ws)
+        : font_(f) ,focus_(false) ,roleIdx_(0) ,win_(ws)
     {
         roles_ = {"Governor","Spy","Baron","General","Judge","Merchant"};
         const float cx = win_.x * 0.5f;
@@ -39,8 +39,6 @@ public:
         addBtn_    = Button(font_,"Add Player",18 ,{cx-100.f ,260.f} ,{200,50});
         startBtn_  = Button(font_,"Start Game",18 ,{cx-100.f ,330.f} ,{200,50});
         startBtn_.setEnabled(false);
-
-        exitBtn_   = Button(font_,"Exit",20 ,{20.f ,static_cast<float>(win_.y)-60.f} ,{100,40});
     }
 
     /*=============================================================*/
@@ -76,7 +74,6 @@ public:
         if (players_.size()>=6) addBtn_.setEnabled(false);
         startBtn_.setEnabled(players_.size()>=2);
 
-        if (exitBtn_.handlePressed(e,w)) { exit_ = true; return false; }
         if (startBtn_.handlePressed(e,w) && players_.size()>=2) return true;
         return false;
     }
@@ -88,7 +85,7 @@ public:
         w.draw(nameBox_); w.draw(nameText_);
 
         roleLeft_.draw(w);  roleRight_.draw(w); roleShow_.draw(w);
-        addBtn_ .draw(w);   startBtn_.draw(w);  exitBtn_.draw(w);
+        addBtn_ .draw(w);   startBtn_.draw(w);
 
         /* רשימת שחקנים */
         float y = 430.f;
@@ -102,7 +99,6 @@ public:
     }
 
     std::vector<std::pair<std::string,std::string>> takePlayers() { return players_; }
-    bool wantExit() const { return exit_; }
 
 private:
     sf::Font&                       font_;
@@ -112,7 +108,7 @@ private:
     sf::Text                        title_ ,nameText_;
     sf::RectangleShape              nameBox_;
     Button                          roleLeft_ ,roleRight_ ,roleShow_;
-    Button                          addBtn_ ,startBtn_ ,exitBtn_;
+    Button                          addBtn_ ,startBtn_;
 
     /* state */
     bool                            focus_;
@@ -120,5 +116,4 @@ private:
     std::vector<std::string>        roles_;
     int                             roleIdx_;
     std::vector<std::pair<std::string,std::string>> players_;
-    bool                            exit_;
 };

@@ -14,6 +14,9 @@ public:
 
     // Allows the Baron to invest 3 coins to gain 6
     void invest();
+
+    std::string getRole() const override { return "Baron"; }
+
 };
 
 }

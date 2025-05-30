@@ -17,6 +17,9 @@ public:
 
     // Blocks a pending tax action from another player
     void blockTax(Player& target);
+
+    std::string getRole() const override { return "Governor"; }
+
 };
 
 }
