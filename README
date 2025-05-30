@@ -45,9 +45,9 @@ It supports all defined roles and rules from the assignment, including:
 
 ## How to Build and Run
 
-### Prerequisites
+### Prerequisites 
 
-Make sure you have:
+Make sure you have:d
 
 * A C++17 compatible compiler (g++)
 * SFML 2.5+ installed (use your package manager or build from source)

@@ -1,4 +1,4 @@
-// eitan.derdiger@gmail.com
+//eitan.derdiger@gmail.com
 #include "doctest.h"
 #include "../roles/Judge.hpp"
 #include "../roles/Baron.hpp"
