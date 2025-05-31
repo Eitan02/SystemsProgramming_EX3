@@ -47,6 +47,10 @@ public:
                e.mouseButton.button == sf::Mouse::Left;
     }
 
+    void moveText(float dx, float dy) {
+        text_.move(dx, dy);
+    }
+
     void setEnabled(bool e) {
         enabled_ = e;
         text_.setFillColor(e ? sf::Color::White : sf::Color(160, 160, 160));

@@ -26,6 +26,8 @@ private:
     sf::Font                            font_;
     State                               state_;
     LobbyScreen                         lobby_;
+    sf::Texture backgroundTex_;
+    sf::Sprite  background_;
 
     std::unique_ptr<coup::Game>         game_;
     std::vector<std::unique_ptr<coup::Player>> players_;
@@ -54,7 +56,18 @@ inline ScreenManager::ScreenManager()
       font_(), state_(State::Lobby),
       lobby_(font_, window_.getSize())
 {
-    font_.loadFromFile("gui/resources/Roboto.ttf");
+    if (!backgroundTex_.loadFromFile("gui/resources/BackgroundPhoto.png")) {
+        throw std::runtime_error("Failed to load background image");
+    }
+    background_.setTexture(backgroundTex_);
+
+    sf::Vector2u texSize = backgroundTex_.getSize();
+    background_.setScale(
+        static_cast<float>(window_.getSize().x) / texSize.x,
+        static_cast<float>(window_.getSize().y) / texSize.y
+    );
+
+    font_.loadFromFile("gui/resources/Orbitron-Bold.ttf");
     window_.setFramerateLimit(60);
 
     winner_.setFont(font_); winner_.setCharacterSize(36);
@@ -241,7 +254,7 @@ inline void ScreenManager::processTurnChoice(const TurnChoice& ch)
     }
 
     try {
-        winner_.setString("Winner: "+game_->winner()+"\nEsc – Exit");
+        winner_.setString("Winner : "+game_->winner()+"\n\nEsc - Exit");
         state_ = State::Over;
         return;
     } catch (...) {}

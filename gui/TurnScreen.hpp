@@ -33,6 +33,9 @@ private:
     struct ActBtn { Button btn; ActionCode code; int cost; bool needsT; bool base; };
     struct TgtBtn { Button btn; int playerIdx; bool base; };
 
+    sf::Texture backgroundTex_;
+    sf::Sprite  background_;
+
     void buildActions(); void buildTargets();
     void refreshHighlight();
     static int cost(ActionCode c);
@@ -77,6 +80,17 @@ inline TurnScreen::TurnScreen(sf::Font& f,const sf::Vector2u& ws,
     :font_(f),win_(ws),views_(v),meIdx_(meIdx),valid_(valid),me_(me),
      code_(ActionCode::None),target_(-1),ready_(false)
 {
+    if (!backgroundTex_.loadFromFile("gui/resources/BackgroundPhoto.png")) {
+        throw std::runtime_error("Failed to load background image");
+    }
+    background_.setTexture(backgroundTex_);
+
+    sf::Vector2u texSize = backgroundTex_.getSize();
+    background_.setScale(
+        static_cast<float>(win_.x) / texSize.x,
+        static_cast<float>(win_.y) / texSize.y
+    );
+
     title_.setFont(font_); title_.setCharacterSize(26);
     title_.setString("Turn : "+views_[meIdx_].getName());
     title_.setPosition(20,315);
@@ -174,6 +188,7 @@ inline void TurnScreen::reset(){ ready_=false; code_=ActionCode::None; target_=-
 
 inline void TurnScreen::draw(sf::RenderWindow& w) const
 {
+    w.draw(background_);
     for(auto& v:views_) v.draw(w);
     w.draw(title_); w.draw(info_);
 

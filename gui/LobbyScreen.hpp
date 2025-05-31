@@ -8,8 +8,19 @@
 class LobbyScreen {
 public:
     LobbyScreen(sf::Font& f ,const sf::Vector2u& ws)
-        : font_(f) ,focus_(false) ,roleIdx_(0) ,win_(ws)
+        : font_(f), win_(ws), focus_(false), roleIdx_(0)
     {
+        if (!backgroundTex_.loadFromFile("gui/resources/BackgroundPhoto.png")) {
+            throw std::runtime_error("Failed to load background image");
+        }
+        background_.setTexture(backgroundTex_);
+
+        sf::Vector2u texSize = backgroundTex_.getSize();
+        background_.setScale(
+            static_cast<float>(win_.x) / texSize.x,
+            static_cast<float>(win_.y) / texSize.y
+        );
+
         roles_ = {"Governor","Spy","Baron","General","Judge","Merchant"};
         const float cx = win_.x * 0.5f;
 
@@ -29,11 +40,16 @@ public:
         nameText_.setPosition(nameBox_.getPosition().x+6.f ,nameBox_.getPosition().y+6.f);
 
         roleLeft_  = Button(font_,"<",18 ,{cx-160.f ,190.f} ,{40,40});
+        roleLeft_.moveText(-5.f, -10.f);
         roleRight_ = Button(font_,">",18 ,{cx+120.f ,190.f} ,{40,40});
+        roleRight_.moveText(-5.f, -10.f);
         roleShow_  = Button(font_,roles_.front(),18 ,{cx-110.f ,190.f} ,{210,40});
+        roleShow_.moveText(0.f, 0.f);
 
         addBtn_    = Button(font_,"Add Player",18 ,{cx-100.f ,260.f} ,{200,50});
+        addBtn_.moveText(-40.f, -5.f);
         startBtn_  = Button(font_,"Start Game",18 ,{cx-100.f ,330.f} ,{200,50});
+        startBtn_.moveText(-40.f, -5.f);
         startBtn_.setEnabled(false);
     }
 
@@ -70,6 +86,7 @@ public:
 
     void draw(sf::RenderWindow& w) const
     {
+        w.draw(background_);
         w.draw(title_);
         w.draw(nameBox_); w.draw(nameText_);
 
@@ -91,6 +108,8 @@ public:
 private:
     sf::Font&                       font_;
     sf::Vector2u                    win_;
+    sf::Texture                    backgroundTex_;
+    sf::Sprite                     background_;
 
     sf::Text                        title_ ,nameText_;
     sf::RectangleShape              nameBox_;

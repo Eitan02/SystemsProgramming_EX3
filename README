@@ -53,30 +53,16 @@ Make sure you have:d
 * SFML 2.5+ installed (use your package manager or build from source)
 * make utility available
 
-On Ubuntu:
-
-sudo apt update
-sudo apt install libsfml-dev g++ make
-
 
 ### Build Instructions
 
-To build the graphical game:
-
+To build and run the GUI:
 make Gui
-
-
-To build the console simulation (main.cpp):
-
-make Main
-
-
-To run the GUI game:
-
 ./Gui
 
 
-To run the CLI simulation:
+To build and run the console simulation (main.cpp):
+make Main
 ./Main
 
 
@@ -86,7 +72,6 @@ make test
 
 
 To run tests with memory checking (Valgrind):
-
 make valgrind
 
 
