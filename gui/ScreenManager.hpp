@@ -36,7 +36,6 @@ private:
     sf::Text                            winner_;
     sf::Text                            globalError_;
 
-    /* helpers */
     void handle(const sf::Event& e);
     void draw();
     void startGame();
@@ -48,7 +47,6 @@ private:
     void processTurnChoice(const TurnChoice& ch);
 };
 
-/*====================== implementation ===============================*/
 #include <sstream>
 
 inline ScreenManager::ScreenManager()
@@ -81,7 +79,6 @@ inline void ScreenManager::run()
     }
 }
 
-/*-- handle -----------------------------------------------------------*/
 inline void ScreenManager::handle(const sf::Event& e)
 {
     if (state_ == State::Lobby) {
@@ -105,7 +102,6 @@ inline void ScreenManager::handle(const sf::Event& e)
         window_.close();
 }
 
-/*-- draw -------------------------------------------------------------*/
 inline void ScreenManager::draw()
 {
     if (state_ == State::Lobby) { lobby_.draw(window_); return; }
@@ -118,7 +114,6 @@ inline void ScreenManager::draw()
     window_.draw(winner_);
 }
 
-/*-- startGame --------------------------------------------------------*/
 inline void ScreenManager::startGame()
 {
     auto list = lobby_.takePlayers();
@@ -146,7 +141,6 @@ inline void ScreenManager::startGame()
     state_ = State::Turn;
 }
 
-/*-- views ------------------------------------------------------------*/
 inline void ScreenManager::buildViews()
 {
     views_.clear();
@@ -189,7 +183,6 @@ inline std::string ScreenManager::roleOf(coup::Player* p)
     return "Merchant";
 }
 
-/*-- openTurnScreen ---------------------------------------------------*/
 inline void ScreenManager::openTurnScreen()
 {
     if (!game_ || players_.empty()) return;
@@ -208,14 +201,12 @@ inline void ScreenManager::openTurnScreen()
     globalError_.setString("");
 }
 
-/*-- helpers ----------------------------------------------------------*/
 inline void ScreenManager::nextIdx()
 {
     do { currentIdx_ = (currentIdx_+1)%players_.size(); }
     while (players_[currentIdx_]->isEliminated());
 }
 
-/*-- processTurnChoice ------------------------------------------------*/
 inline void ScreenManager::processTurnChoice(const TurnChoice& ch)
 {
     globalError_.setString("");
@@ -249,14 +240,12 @@ inline void ScreenManager::processTurnChoice(const TurnChoice& ch)
         return;
     }
 
-    /* winner? */
     try {
         winner_.setString("Winner: "+game_->winner()+"\nEsc – Exit");
         state_ = State::Over;
         return;
     } catch (...) {}
 
-    /* advance turn */
     std::string next = game_->turn();
     for(size_t i=0;i<players_.size();++i)
         if(players_[i]->getName()==next){ currentIdx_=i; break; }

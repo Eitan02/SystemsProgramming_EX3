@@ -3,9 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
-/*-----------------------------------------------------------
- *  A light “card” that shows a player inside the top bar.
- *----------------------------------------------------------*/
 class PlayerView {
 public:
     PlayerView(sf::Font& f, const sf::Vector2f& pos)
@@ -36,7 +33,6 @@ public:
         skull_.setPosition(pos.x + 145.f, pos.y + 26.f);
     }
 
-    /*-------------- setters ---------------*/
     void setName (const std::string& n) { name_.setString(n);        }
     void setRole (const std::string& r) { role_.setString(r);        }
     void setCoins(int c) {
@@ -47,10 +43,8 @@ public:
     void setEliminated(bool e)          { eliminated_ = e;  refreshColours(); }
     void setActive(bool a)              { active_     = a;  refreshColours(); }
 
-    /*-------------- accessors -------------*/
     std::string getName() const { return name_.getString().toAnsiString(); }
 
-    /*-------------- drawing ---------------*/
     void draw(sf::RenderWindow& w) const {
         w.draw(box_);
         w.draw(name_);

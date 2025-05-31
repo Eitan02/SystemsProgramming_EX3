@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
-// utility button class for the GUI.
 class Button {
 public:
     Button() : enabled_(false), hovered_(false), initialEnabled_(false) {}
@@ -33,7 +32,6 @@ public:
         text_.setPosition(pos.x + dims.x / 2.f, pos.y + dims.y / 2.f - 3.f);
     }
 
-    /*----------- drawing & interaction -------------*/
     void draw(sf::RenderWindow& w) const { w.draw(box_); w.draw(text_); }
 
     bool handlePressed(const sf::Event& e, const sf::RenderWindow& w) {
@@ -49,7 +47,6 @@ public:
                e.mouseButton.button == sf::Mouse::Left;
     }
 
-    /*----------- run-time enable / disable ----------*/
     void setEnabled(bool e) {
         enabled_ = e;
         text_.setFillColor(e ? sf::Color::White : sf::Color(160, 160, 160));
@@ -58,7 +55,6 @@ public:
     bool  isEnabled()          const { return enabled_;            }
     bool  wasEnabledInitially()const { return initialEnabled_;     }
 
-    /*----------- misc. helpers ----------------------*/
     void setText(const std::string& s) {
         text_.setString(s);
         auto b = text_.getLocalBounds();

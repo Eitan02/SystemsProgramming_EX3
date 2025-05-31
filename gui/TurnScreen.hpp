@@ -52,7 +52,6 @@ private:
     bool ready_;
 };
 
-/*================ implementation ================*/
 #include <sstream>
 
 inline int TurnScreen::cost(ActionCode c){
