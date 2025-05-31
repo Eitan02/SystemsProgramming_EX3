@@ -26,11 +26,6 @@ public:
         coins_.setFont(font_);
         coins_.setCharacterSize(15);
         coins_.setPosition(pos.x + 8.f, pos.y + 54.f);
-
-        skull_.setFont(font_);
-        skull_.setCharacterSize(28);
-        skull_.setString("☠");
-        skull_.setPosition(pos.x + 145.f, pos.y + 26.f);
     }
 
     void setName (const std::string& n) { name_.setString(n);        }
